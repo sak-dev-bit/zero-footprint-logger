@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: uptime-logger
+spec:
+  containers:
+  - name: c-logger
+    image: <YOUR_DOCKER_HUB_USERNAME>/c-metric-logger:latest # Replace this
+    # The /proc filesystem path is often a volume mount to work correctly
+    volumeMounts:
+    - name: host-proc
+      mountPath: /proc/uptime
+      subPath: uptime
+
+  # Use a volume to mount the host's /proc filesystem. This is a common pattern for monitoring
+  volumes:
+  - name: host-proc
+    hostPath:
+      path: /proc
+      type: Directory
+
+  # The program exits immediately, so we set the policy to restart after a short delay (e.g., once every 30s)
+  restartPolicy: OnFailure

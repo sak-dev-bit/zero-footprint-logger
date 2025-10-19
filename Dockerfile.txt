@@ -1,0 +1,15 @@
+# Stage 1: Builder - Uses a full compiler image to build the binary
+FROM gcc:11 AS builder
+WORKDIR /app
+COPY main.c .
+# Compile the C program to a static binary (easier to run anywhere)
+RUN gcc main.c -o metric_logger
+
+# Stage 2: Runtime - Uses an extremely small, "scratch" or Alpine image
+FROM alpine:latest
+WORKDIR /usr/bin/
+# Copy only the compiled binary from the builder stage
+COPY --from=builder /app/metric_logger .
+
+# Run the compiled executable
+CMD ["/usr/bin/metric_logger"]
